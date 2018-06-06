@@ -35,6 +35,7 @@ void train_detector(char *datacfg, char *cfgfile, char *weightfile, int *gpus, i
 {
     list *options = read_data_cfg(datacfg);
     char *train_images = option_find_str(options, "train", "data/train.list");
+    char *negatives_images = option_find_str(options, "negatives", "data/train.list");
     char *backup_directory = option_find_str(options, "backup", "/backup/");
 
     srand(time(0));
@@ -76,8 +77,10 @@ void train_detector(char *datacfg, char *cfgfile, char *weightfile, int *gpus, i
     float jitter = l.jitter;
 
     list *plist = get_paths(train_images);
+    list *nlist = get_paths(negatives_images);
     //int N = plist->size;
     char **paths = (char **)list_to_array(plist);
+    char **negatives_paths = (char **)list_to_array(nlist);
 
 	int init_w = net.w;
 	int init_h = net.h;
@@ -89,8 +92,10 @@ void train_detector(char *datacfg, char *cfgfile, char *weightfile, int *gpus, i
     args.h = net.h;
 	args.c = net.c;
 	args.paths = paths;
+  args.negatives_paths = negatives_paths;
     args.n = imgs;
     args.m = plist->size;
+    args.m_negatives = nlist->size;
     args.classes = classes;
     args.flip = net.flip;
     args.jitter = jitter;

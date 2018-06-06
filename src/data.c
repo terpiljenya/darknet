@@ -713,10 +713,21 @@ data load_data_swag(char **paths, int n, int classes, float jitter)
 
 #include "http_stream.h"
 
-data load_data_detection(int n, char **paths, int m, int w, int h, int c, int boxes, int classes, int use_flip, float jitter, float hue, float saturation, float exposure, int small_object)
+data load_data_detection(int n, char **paths, char **negatives_paths, int m, int m_negatives, int w, int h, int c, int boxes, int classes, int use_flip, float jitter, float hue, float saturation, float exposure, int small_object)
 {
     c = c ? c : 3;
-    char **random_paths = get_random_paths(paths, n, m);
+    char **positives_random_paths = get_random_paths(paths, n / 2, m);
+    char **negatives_random_paths = get_random_paths(negatives_paths, n / 2, m_negatives);
+
+    char **random_paths = calloc(n, sizeof(char*));
+
+    int j;
+
+    for(j = 0; j < n; j = j + 2){
+        random_paths[j] = positives_random_paths[j];
+        random_paths[j+1] = negatives_random_paths[j];
+    }
+
     int i;
     data d = {0};
     d.shallow = 0;
@@ -781,10 +792,20 @@ data load_data_detection(int n, char **paths, int m, int w, int h, int c, int bo
     return d;
 }
 #else	// OPENCV
-data load_data_detection(int n, char **paths, int m, int w, int h, int c, int boxes, int classes, int use_flip, float jitter, float hue, float saturation, float exposure, int small_object)
+data load_data_detection(int n, char **paths, char **negatives_paths, int m, int m_negatives, int w, int h, int c, int boxes, int classes, int use_flip, float jitter, float hue, float saturation, float exposure, int small_object)
 {
     c = c ? c : 3;
-	char **random_paths = get_random_paths(paths, n, m);
+	char **positives_random_paths = get_random_paths(paths, n / 2, m);
+    char **negatives_random_paths = get_random_paths(negatives_paths, n / 2, m_negatives);
+
+    char **random_paths = calloc(n, sizeof(char*));
+    int j;
+
+    for(j = 0; j < n; j = j + 2){
+        random_paths[j] = positives_random_paths[j];
+        random_paths[j+1] = negatives_random_paths[j];
+    }
+
 	int i;
 	data d = { 0 };
 	d.shallow = 0;
@@ -855,7 +876,7 @@ void *load_thread(void *ptr)
     } else if (a.type == REGION_DATA){
         *a.d = load_data_region(a.n, a.paths, a.m, a.w, a.h, a.num_boxes, a.classes, a.jitter, a.hue, a.saturation, a.exposure);
     } else if (a.type == DETECTION_DATA){
-        *a.d = load_data_detection(a.n, a.paths, a.m, a.w, a.h, a.c, a.num_boxes, a.classes, a.flip, a.jitter, a.hue, a.saturation, a.exposure, a.small_object);
+        *a.d = load_data_detection(a.n, a.paths, a.negatives_paths, a.m, a.m_negatives, a.w, a.h, a.c, a.num_boxes, a.classes, a.flip, a.jitter, a.hue, a.saturation, a.exposure, a.small_object);
     } else if (a.type == SWAG_DATA){
         *a.d = load_data_swag(a.paths, a.n, a.classes, a.jitter);
     } else if (a.type == COMPARE_DATA){

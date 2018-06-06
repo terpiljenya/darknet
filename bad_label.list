@@ -1,0 +1,4 @@
+data/ybrand_small/mastercard/240.txt Wrong annotation: class_id = 20. But class_id should be [from 0 to 18]
+data/ybrand_small/youscan/q4H21NiWQJ0Wv83V3wAc1w-article.txt Wrong annotation: class_id = 22. But class_id should be [from 0 to 18]
+data/ybrand_small/youscan/409563_454953541218346_191444634_n.txt Wrong annotation: class_id = 22. But class_id should be [from 0 to 18]
+data/ybrand_small/adrenalinerush/108.txt Wrong annotation: class_id = 21. But class_id should be [from 0 to 18]
